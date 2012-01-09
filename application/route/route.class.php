@@ -81,6 +81,7 @@ class Route
 				require_once($controllerfile);
 				$Instance = new $controllerName();
 				$Instance-> $func ($param);
+
 				
 			}
 			else

@@ -10,11 +10,11 @@
 			$this->db=mysql_connect(DB_HOST,DB_USER_NAME,DB_USER_PASSWORD);
 			mysql_select_db(DB_NAME, $this->db);
 			mysql_query("SET NAMES 'UTF8'"); 
-			echo "db_connected";
+			//echo "db_connected";
 		}
 		public function fetch($sql)
 		{
-			echo $sql;
+			//echo $sql;
 			$this->query=mysql_unbuffered_query($sql,$this->db);
 		}
 		public function fetch2($sql)

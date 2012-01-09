@@ -5,7 +5,7 @@
 	{
 		public function  __construct($instance)
 		{
-			$this->IsDbObj = true;
+			$this->IsDbObj = false;
 			parent::__construct($instance);
 			echo "index->index";
 		}

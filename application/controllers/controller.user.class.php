@@ -10,10 +10,15 @@
 		
 		public function _index()
 		{
-			echo "调用index动作成功:参数";
-			$data = array("newuser","myname","11@11.com",4,5);
-			$this->model->New($data);
-		
+			//$data = array("newuser","myname","11@11.com",4,5);
+			//$this->model->New($data);
+				//var_dump($arr[4]);
+				/*foreach ($arr[4] as $value)
+				{
+					echo "|".$value["UserName"]."|";
+				}*/
+				$this->values = array("title"=>"hello");
+				$this->RenderTemplate("index");
 		}	
 		public function _show()
 		{
@@ -21,5 +26,6 @@
 			
 			
 		}
+		
 	}
 ?>

@@ -8,6 +8,8 @@
 			$this->IsDbObj = true;
 			$this->DataStruct = array("UserName","NickName","email","password","salt");
 			parent::__construct($instance);
+			$this->has_many("image","author");
+			$this->has_many("friend","UserId");
 		}
 		
 		

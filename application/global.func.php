@@ -1,14 +1,6 @@
 <?php
-	function LoadTemplate($TemplateName)
-	{
-
-		if(file_exists($TemplateName))
-		{
-		}
-		else
-		{
-			echo "template missing";
-		}
-	}
-
+	function getmicrotime(){ 
+		list($usec, $sec) = explode(" ",microtime()); 
+		return ((float)$usec + (float)$sec); 
+    } 
 ?>
