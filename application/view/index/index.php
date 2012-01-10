@@ -2,12 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <p>
-<?php if($this->data->ifTest2) {  ?>
+<?php switch($this->values["tests"]) { default:  ?>
 </p>
 <p>
-<?php echo @ $this->data->i; ?>
+<?php break; case 1: ?>
+<b>hahahaa </b>
 </p>
-<?php } else { ?>
-<?php echo @ i<5; ?>
+<p>
 <?php } ?>
+<p>
 </html>

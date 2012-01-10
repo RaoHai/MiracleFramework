@@ -2,7 +2,7 @@
 	/**
 	 * model 的基类
 	 *
-	 * Copyright(c) 2011 by surgesoft. All rights reserved
+	 *  Copyright(c) 2011-2012 by surgesoft. All rights reserved
 	 *
 	 * To contact the author write to {@link mailto:surgesoft@gmail.com}
 	 *
@@ -98,6 +98,11 @@
 								break;
 							}
 						$this->dao->fetch($sql);
+						/* 数据库对象的抽象 
+						*  其实也就是只是一次去冗余的封装而已。。
+						*  把join出来的表根据重复项和从属关系
+						*  分散到数组的各个键值
+						*/
 						while($list = $this->dao->getRow () )
 						{
 							$echoid = $list[ucwords($this->instance)."Id"];							
@@ -192,10 +197,15 @@
 		*	一对多关系
 		*   （多对多关系一般会借助一张连接表来实现，解决方法参照RoR，尝试查找一个名为$othermodel_$instance 的表）
 		*	
-		*   表间关系的定义需要双向定义。比如table1 与table2是一对一关系，需要在table1中定义 has_one("table2")
+		*   表间关系的定义需要双向定义。
+		*   例如table1 与table2是一对一关系，
+		*   则需要在table1中定义 has_one("table2")
 		*   并同时在table2中定义 belongs_to("table1")
 		*   才可以正常进行查询操作。
-		*   
+		*   若是只定义table1的has_one而没用定义table2的 belongs_to
+		*   将只能在table1中查询到table2，
+		*   而不能从table2中查询到table1.
+		*   当然你可以纯手动
 		*
 		*/
 		protected function has_many($othermodel,$foreignkey)
@@ -206,6 +216,12 @@
 			//var_dump($this->one_to_many);
 			$this->join_sql.="INNER JOIN  `{$othermodel}` ON  `{$this->instance}`.`{$this->instance}ID` =  `{$othermodel}`.`{$foreignkey}` ";
 			//echo 	$this->join_sql;
+		}
+		protected function belongs_to($othermodel,$foreignkey)
+		{
+				$arr=array($othermodel,$foreignkey);
+				array_push($this->one_to_many,$arr);
+				$this->join_sql.="LEFT INNER JOIN  `{$othermodel}` ON  `{$this->instance}`.`{$this->instance}ID` =  `{$othermodel}`.`{$foreignkey}` ";
 		}
 	}
 

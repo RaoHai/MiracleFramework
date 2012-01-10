@@ -7,7 +7,7 @@
 		{
 			$this->IsDbObj = false;
 			parent::__construct($instance);
-			echo "index->index";
+			//echo "index->index";
 		}
 		
 		

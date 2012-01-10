@@ -10,7 +10,8 @@
 		
 		public function _index()
 		{
-			$this->values = array("title"=>"hello");
+			$this->values = array("title"=>"hello",
+												"tests"=>"1");
 			$this->RenderTemplate("index");
 			
 		}

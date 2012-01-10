@@ -2,12 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <p>
-{if:ifTest2}
+{$switch:tests}
 </p>
 <p>
-{index}
+{$case:1}
+<b>hahahaa </b>
 </p>
-{else}
-{@ i<5}
-{end}
+<p>
+{$endswitch}
+<p>
 </html>
