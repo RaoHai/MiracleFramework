@@ -76,7 +76,19 @@ class Route
 		   $func = "_".$this->_action;
 		   $param = $this->_param;
 		  // echo $Permissions[$controllerName];
-			if (file_exists($controllerfile) && $_SESSION["permission"]==$Permissions[ $controllerName])
+			//$acl= loadser();
+			$permission = $_SESSION["permission"];
+			$acl = new Acl();
+			$acl->addRole("admin");
+			$acl->addRole("edit");
+			$acl->allow("admin","index");
+			$acl->allow("edit","user");
+			$acl->addRole("guest",array("admin","edit"));
+
+			//$acl->allow("guest","user");
+			
+			//echo $permission;
+			if (file_exists($controllerfile) && ($acl->isallowed($permission,$controllerName)||$acl->isallowed($permission,$controllerName,$this->_action)))
 			{
 				require_once($controllerfile);
 				$Instance = new $controllerName();
@@ -86,8 +98,8 @@ class Route
 			}
 			else
 			{
-				//echo "权限不足";
-				Header("Location: /");
+				echo "权限不足";
+				//Header("Location: /");
 			}
 
 		}

@@ -18,6 +18,7 @@ defined("WEB_AUTH") || die("NO_AUTH");
 //include_once 'route.ini.php';
 //include_once 'mvc.ini.php';
 //include_once 'role.ini.php';
+include_once 'lib/acl.php';
 include_once 'route/route.class.php';
 include_once 'global.func.php';
 

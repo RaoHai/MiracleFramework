@@ -13,7 +13,24 @@
 			$this->values = array("title"=>"hello",
 												"tests"=>"1");
 			$this->RenderTemplate("index");
-			
+			//赋值耗时0.0022368431091309
+			//序列化耗时0.00037193298339844
+			//$start = getmicrotime();
+			/*$acl = new Acl();
+			$acl->addRole("admin");
+			$acl->addRole("user","admin");
+			$acl->allow("admin","index","abc");
+			$acl->allow("user",array("1","2","3"));
+			//if($acl->isallowed("admin","index","abc")) echo "权限确认";
+			//if($acl->isallowed("user","index")) echo "权限确认";
+			//$acl->serializeit();*/
+			//$acl= loadser();
+			//$end = getmicrotime();
+			//echo $end-$start;
+			//if($acl->isallowed("admin","index","abc")) echo "权限确认";
+			//if($acl->isallowed("user","index")) echo "权限确认";
+			//$s= serialize($acl);
+			//$acl2 = unserialize($s);
 		}
 	}
 ?>
