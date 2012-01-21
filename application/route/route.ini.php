@@ -1,7 +1,7 @@
 <?php
-//¹Ì¶¨ĞÎÊ½Â·ÓÉÅäÖÃ
+//å›ºå®šå½¢å¼è·¯ç”±é…ç½®
 $routeArr = array(
-"/home" => array("module"=>"default","controller"=>"home","action"=>"index"),
+"/home" => array("module"=>"user","controller"=>"user","action"=>"index","param"=>"0"),
                   );
 			
  $Permissions = array(

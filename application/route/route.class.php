@@ -40,7 +40,7 @@ class Route
 			$uri == NULL && $uri = $this->_uri;
 			 if (isset( $routeArr[$uri]))
 			 {
-					  $this->uriArr = array($routeArr[$uri]["module"],$routeArr[$uri]["controller"],$routeArr[$uri]["action"]);
+					  $this->uriArr = array($routeArr[$uri]["controller"],$routeArr[$uri]["action"],$routeArr[$uri]["param"]);
 					 
 			 }
 			 else
@@ -49,15 +49,17 @@ class Route
 				$this->uriArr && $this->uriArr = array_filter($this->uriArr);
 			}
 			//var_dump($this->uriArr);
-
+			//echo "==>".$this->uriArr[1];
       }
 	  
 		private function init()
        {
+			//$cache = Cache::getInstance();
+			//Cache::op_cache_start();
            $this->parseUri();   
 		   $this->parseRoute();
 		   $this->dispatcher();
-			
+		//	Cache::op_cache_stop();
 		}
 		private function parseRoute()
 		{
@@ -75,21 +77,29 @@ class Route
 		   $controllerName =$this->_controller;
 		   $func = "_".$this->_action;
 		   $param = $this->_param;
+		   //echo "C:". $controllerName.",A:".$this->_action;
 		  // echo $Permissions[$controllerName];
 			//$acl= loadser();
 			$permission = $_SESSION["permission"];
-			$acl = new Acl();
-			$acl->addRole("admin");
-			$acl->addRole("edit");
-			$acl->allow("admin","index");
-			$acl->allow("edit","user");
-			$acl->addRole("guest",array("admin","edit"));
+			//echo  $_SESSION["permission"];
+			$acl = Acl::getInstance();
+			$acl->addRole("guest");
+			$acl->addRole("user");
+			$acl->allow("guest","index");
+			$acl->allow("user","index");
+			$acl->allow("user","user");
+			$acl->allow("user","imagegroup");
+			$acl->allow("user","image");
+			$acl->allow("guest","user","loginpage");
+			$acl->allow("guest","user","login");
+			$acl->allow("guest","user","logout");
 
 			//$acl->allow("guest","user");
 			
 			//echo $permission;
 			if (file_exists($controllerfile) && ($acl->isallowed($permission,$controllerName)||$acl->isallowed($permission,$controllerName,$this->_action)))
 			{
+		
 				require_once($controllerfile);
 				$Instance = new $controllerName();
 				$Instance-> $func ($param);
@@ -98,9 +108,10 @@ class Route
 			}
 			else
 			{
-				echo "权限不足";
-				//Header("Location: /");
+				//echo "权限不足";
+				Header("Location: /user/loginpage?".$this->_uri."");
 			}
+		
 
 		}
 		

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 	require_once("model.base.class.php");
 	class user_model extends ModelBase
@@ -9,7 +9,7 @@
 			$this->DataStruct = array("UserName","NickName","email","password","salt");
 			parent::__construct($instance);
 			$this->has_many("image","author");
-			$this->has_many("friend","UserId");
+			$this->has_many("friend","User");
 		}
 		
 		

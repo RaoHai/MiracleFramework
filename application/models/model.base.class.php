@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 	/**
 	 * model 的基类
 	 *
@@ -10,9 +10,11 @@
 	 * @version $Id: model.base.class.php 2012-01-06 16:06
 	 * @package model.base.class.php
 	 
-	 关于数据库封装的效率
-	 在渣电脑上不使用缓存直接查询，
-	 测试10,000条1对多的多表连接数据查询的耗时在8.2606220245361～8.4245231151581秒之间
+	 * 关于数据库封装的效率
+	 * 在渣电脑上不使用缓存直接查询，
+	 * 测试10,000条1对多的多表连接数据查询的耗时在8.2606220245361～8.4245231151581秒之间
+	 * 基本上是按照ACT AS TREE的算法来做
+	 * 期待更好的优化
 	 
 	 */
 	require_once( APPLICATION_PATH."/db.conn.php");
@@ -34,7 +36,7 @@
 		private $QueryConstraint; 					//查询约束
 		private $QueryConstraintOperators;  //约束运算符
 		private $QueryConstraintValue;			//约束值
-		private $StatusArr = array("Get"=>"select","Set"=>"update","New"=>"insert");
+		private $StatusArr = array("Get"=>"select","Set"=>"update","New"=>"insert","Del"=>"DELETE");
 		//表间关系
 		protected $one_to_one;
 		protected $one_to_many = array();
@@ -49,6 +51,7 @@
 		}
 		public function getresult()
 		{
+			//if(empty($this->obj)) echo "空";
 			return $this->obj;
 		}
 		
@@ -59,6 +62,7 @@
 		**/
 		public function __call($FuncName,$arg)
 		{
+			
 				if($this->IsDbObj)
 				{
 					
@@ -86,18 +90,23 @@
 						//echo "全部接收成功>>>";
 						switch($this->QueryType){
 							case "select":
-								$sql = $this->QueryType." {$this->QueryColum} from `{$this->instance }`  {$this->join_sql} where `{$this->instance }`.`{$this->QueryConstraint}` =".$arg[0];
+								$sql = $this->QueryType." {$this->QueryColum} from `{$this->instance }`  {$this->join_sql} where `{$this->instance }`.`{$this->QueryConstraint}` ='".$arg[0]."'";
 								break;
 							case "update":
-								$sql = $this->QueryType." `".$this->instance."` set ".$this->QueryColum." = '".$arg[1]."' where `".$this->QueryConstraint."` =".$arg[0];
+								$sql = $this->QueryType." `".$this->instance."` set ".$this->QueryColum." = '".$arg[1]."' where `".$this->QueryConstraint."` = '".$arg[0]."'";
 								break;
 							case "insert":
 								$list = implode(",",$this->DataStruct);
 								$argvalue="'".implode("','",$arg[0])."'";
 								$sql = "insert into `".$this->instance."`(".$list.") VALUES(".$argvalue.")";
 								break;
+							case "DELETE":
+								$sql = $this->QueryType." from `{$this->instance }` where  `{$this->instance }`.`{$this->QueryConstraint}` ='".$arg[0]."'";
+								echo $sql ;
+								break;
 							}
 						$this->dao->fetch($sql);
+						
 						/* 数据库对象的抽象 
 						*  其实也就是只是一次去冗余的封装而已。。
 						*  把join出来的表根据重复项和从属关系
@@ -105,12 +114,14 @@
 						*/
 						while($list = $this->dao->getRow () )
 						{
-							$echoid = $list[ucwords($this->instance)."Id"];							
+							//var_dump($list);
+							$echoid =$arg[0];			
+							//echo "!!".$list["UserId"]."!!";
 							if(!isset($this->obj[$echoid]))
 							{
 								$this->obj[$echoid] = array();
-								array_push($this->obj[$echoid],$list);
 							}
+							array_push($this->obj[$echoid],$list);
 							foreach($this->one_to_many as $other)
 							{
 								$mark=ucwords($other[0])."Id";
@@ -185,6 +196,22 @@
 								
 						}
 						break;
+						case "DELETE":
+							switch($this->Status)
+							{
+								case 1:
+									if($letter=="By") $this->Status=2;
+									else return false;
+									return true;
+									break;
+								case 2:
+									$this->QueryConstraint = $letter;
+									$this->Status=99;
+									return true;
+									break;
+							}
+							break;
+						
 						
 						
 				}
@@ -205,7 +232,7 @@
 		*   若是只定义table1的has_one而没用定义table2的 belongs_to
 		*   将只能在table1中查询到table2，
 		*   而不能从table2中查询到table1.
-		*   当然你可以纯手动
+		*   当然你可以纯手动- -
 		*
 		*/
 		protected function has_many($othermodel,$foreignkey)
@@ -214,14 +241,14 @@
 			$arr=array($othermodel,$foreignkey);
 			array_push($this->one_to_many,$arr);
 			//var_dump($this->one_to_many);
-			$this->join_sql.="INNER JOIN  `{$othermodel}` ON  `{$this->instance}`.`{$this->instance}ID` =  `{$othermodel}`.`{$foreignkey}` ";
+			$this->join_sql.="LEFT JOIN  `{$othermodel}` ON  `{$this->instance}`.`{$this->instance}ID` =  `{$othermodel}`.`{$foreignkey}` ";
 			//echo 	$this->join_sql;
 		}
 		protected function belongs_to($othermodel,$foreignkey)
 		{
 				$arr=array($othermodel,$foreignkey);
 				array_push($this->one_to_many,$arr);
-				$this->join_sql.="LEFT INNER JOIN  `{$othermodel}` ON  `{$this->instance}`.`{$this->instance}ID` =  `{$othermodel}`.`{$foreignkey}` ";
+				$this->join_sql.="LEFT JOIN  `{$othermodel}` ON  `{$this->instance}`.`{$this->instance}ID` =  `{$othermodel}`.`{$foreignkey}` ";
 		}
 	}
 

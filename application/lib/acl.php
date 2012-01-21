@@ -1,50 +1,62 @@
 <?php
 		/*访问控制列表 (ACL,access control list)类
-		*
+		*2012-01-12，ACL类应该是一个单例模式
 		*
 		*
 		*/
 		class Acl
 		{
-			protected $Rolelist = array();
-			protected $parents = array();
-			protected $allow = array();
-			protected $serializeFile;
-			public function __construct()
+			static protected $Rolelist = array();
+			static protected $parents = array();
+			static protected $allow = array();
+			static protected $serializeFile;
+			static private $_instance = NULL;
+			private function __construct()
 			{
-				$this->serializeFile =  APPLICATION_PATH."/lib/aclserialize.ser";
+				self::$serializeFile =  APPLICATION_PATH."/lib/aclserialize.ser";
 			}
-			public function serializeit()
+			private function __clone()
+			{
+			}
+			
+			static public function getInstance() 
+			{
+				if (is_null(self::$_instance) || !isset(self::$_instance)) {
+					self::$_instance = new self();
+				}
+				return self::$_instance;
+			}	 
+			static public function serializeit()
 			{
 				
 				$s= serialize($this);
-				$f = fopen($this->serializeFile, 'w');
+				$f = fopen(serializeFile, 'w');
 				fwrite($f,$s);
 				fclose($f);
 			}
-			public function addRole($rolename,$parent)
+			static public function addRole($rolename,$parent)
 			{
-				$this->Rolelist[$rolename] = 1;
-				$this->parents[$rolename] =array();
+				self::$Rolelist[$rolename] = 1;
+				self::$parents[$rolename] =array();
 				if(is_array($parent))
 				{
 					foreach($parent as $pa)
-						$this->parents[$rolename][]=$pa;
+						self::$parents[$rolename][]=$pa;
 				}
-				else $this->parents[$rolename][]=$parent;
-				//var_dump($this->parents[$rolename]);
+				else self::$parents[$rolename][]=$parent;
+				//var_dump(self::$parents[$rolename]);
 			}
-			public function allow($rolename,$controller,$action=0)
+			static public function allow($rolename,$controller,$action=0)
 			{
 				
-				if(!isset($this->allow[$rolename])) $this->allow[$rolename]=array();
+				if(!isset(self::$allow[$rolename])) self::$allow[$rolename]=array();
 				if(is_array($controller))
 				{
 					foreach($controller as $ctrl)
 					{
 						if(empty($action))
 						{
-							$this->allow[$rolename][$ctrl]=1;
+							self::$allow[$rolename][$ctrl]=1;
 						}
 						else
 						{
@@ -52,12 +64,12 @@
 							{
 								foreach($action as $a)
 								{	
-									$this->allow[$rolename][$ctrl][$a]=1;
+									self::$allow[$rolename][$ctrl][$a]=1;
 								}
 							}
 							else
 							{
-								$this->allow[$rolename][$ctrl][$action]=1;
+								self::$allow[$rolename][$ctrl][$action]=1;
 							}
 						}
 					}
@@ -66,8 +78,8 @@
 				{
 					if(empty($action))
 					{
-						$this->allow[$rolename][$controller]=1;
-						echo "设置：".$rolename.">>".$controller;
+						self::$allow[$rolename][$controller]=1;
+						//echo "设置：".$rolename.">>".$controller;
 					}
 					else
 					{
@@ -75,33 +87,33 @@
 						{
 							foreach($action as $a)
 							{	
-								$this->allow[$rolename][$controller][$a]=1;
+								self::$allow[$rolename][$controller][$a]=1;
 							}
 						}
 						else
 						{
-							$this->allow[$rolename][$controller][$action]=1;
+							self::$allow[$rolename][$controller][$action]=1;
 						}
 					}
 				}
 			}
-			public function isallowed($rolename,$controller,$action=0)
+			static public function isallowed($rolename,$controller,$action=0)
 			{
 				if(empty($rolename)) return false;
 				//echo "校验：".$rolename.">>".$controller;
-				if(isset($this->allow[$rolename][$controller]))
+				if(isset(self::$allow[$rolename][$controller]))
 				{
 					//echo "校验：".$rolename.">>".$controller;
-					if($this->allow[$rolename][$controller]==1) return true;
-					if(isset($this->allow[$rolename][$controller][$action])) return true;
+					if(self::$allow[$rolename][$controller]==1) return true;
+					if(isset(self::$allow[$rolename][$controller][$action])) return true;
 				}
 				else 
 				{
-					//var_dump($this->parents[$rolename]);
+					//var_dump(self::$parents[$rolename]);
 					//$check=0;
-					foreach($this->parents[$rolename] as $parentrole)
+					foreach(self::$parents[$rolename] as $parentrole)
 					{
-						if($this->isallowed($parentrole,$controller,$action))return true;
+						if(self::isallowed($parentrole,$controller,$action))return true;
 					}
 					return false;
 				}

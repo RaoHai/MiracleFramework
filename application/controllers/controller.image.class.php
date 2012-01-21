@@ -10,9 +10,8 @@
 		
 		public function _index()
 		{
-			echo "调用image_index动作成功:参数";
-			$data = array(1,2,3,4,5,6);
-			$this->model->New($data);
+		
+			//$this->model->Del_By_ImageId(4);
 		
 		}	
 		public function _show()

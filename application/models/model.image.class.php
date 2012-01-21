@@ -6,8 +6,12 @@
 		public function  __construct($instance)
 		{
 			$this->IsDbObj = true;
-			$this->DataStruct = array("ImageName","Description","author","Date","img_url","GroupID");
+			$this->DataStruct = array("ImageName","Description","author","Date","imgurl","GroupID");
 			parent::__construct($instance);
+		}
+		public function show()
+		{
+			echo "yes";
 		}
 		
 		

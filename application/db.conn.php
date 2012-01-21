@@ -1,5 +1,4 @@
 <?php
-	include_once 'db.ini.php';
 
 	class database
 	{
@@ -15,6 +14,9 @@
 		public function fetch($sql)
 		{
 			//echo $sql;
+			$fp=fopen("log.txt","a");
+			fwrite($fp,"SQL:". $sql."\r\n"); 
+			fclose($fp);
 			$this->query=mysql_unbuffered_query($sql,$this->db);
 		}
 		public function fetch2($sql)

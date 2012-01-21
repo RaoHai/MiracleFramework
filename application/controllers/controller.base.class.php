@@ -2,7 +2,7 @@
 
 
 	/**
-	 * controller µÄ»ùÀà
+	 * controller çš„åŸºç±»
 	 *
 	 * Copyright(c) 2011-2012 by surgesoft. All rights reserved
 	 *
@@ -11,12 +11,12 @@
 	 * @author surgesoft
 	 * @version $Id: model.base.class.php 2012-01-06 16:06
 	 * @package model.base.class.php
-	 * ¿ØÖÆÆ÷µÄÄ£°å±àÒë²Î¿¼ÁËvemplator
-	 * µ«ÊÇÊµÏÖ·½·¨¿ÉÄÜÂÔÓÐ²îÒì
+	 * æŽ§åˆ¶å™¨çš„æ¨¡æ¿ç¼–è¯‘å‚è€ƒäº†vemplator
+	 * ä½†æ˜¯å®žçŽ°æ–¹æ³•å¯èƒ½ç•¥æœ‰å·®å¼‚
 	 */
 	class ControllerBase
 	{
-		protected $model;
+		public $model;
 		protected $view;
 		protected $TemplateFolder;
 		protected $TemplateFile;
@@ -29,13 +29,14 @@
 			require_once( APPLICATION_PATH."/models/model.{$instance}.class.php");
 			$this->TemplateFolder= APPLICATION_PATH."/view/{$instance}/";
 			$this->model	 = new $modelname($instance);
+			//echo $modelname;
 			//echo $TemplateFolder;
 		}
-		 /*Ä£°åÒýÇæ
-		 * ²Î¿¼×Ôvemplator
-		 * ÀíÂÛÉÏÕâÒ»²¿·ÖÓ¦¸Ã·ÅÔÚviewÀï
-		 * µ«ÊÇÏÖÔÚÐ´ÔÚcontrollerÀï
-		 * view²¿·ÖÍêÈ«ÊÇÄ£°åºÍcompiled¹ýµÄÎÄ¼þ
+		 /*æ¨¡æ¿å¼•æ“Ž
+		 * å‚è€ƒè‡ªvemplator
+		 * ç†è®ºä¸Šè¿™ä¸€éƒ¨åˆ†åº”è¯¥æ”¾åœ¨viewé‡Œ
+		 * ä½†æ˜¯çŽ°åœ¨å†™åœ¨controlleré‡Œ
+		 * viewéƒ¨åˆ†å®Œå…¨æ˜¯æ¨¡æ¿å’Œcompiledè¿‡çš„æ–‡ä»¶
 		*/
 		protected function RenderTemplate($action)
 		{
@@ -43,10 +44,12 @@
 			$compiledFile =  $this->TemplateFolder."".$action.".php";
 			if(file_exists($this->TemplateFile)&& filemtime($compiledFile) >= filemtime($this->TemplateFile))
 			{
+				//echo filemtime($compiledFile),"|".filemtime($this->TemplateFile);
 				require_once($compiledFile);
 			}
 			else
 			{
+				//echo "é‡æ–°ç¼–è¯‘";
 				$lines = file($this->TemplateFile);
 				$newLines = array();
 				$matches = null;

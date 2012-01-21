@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 	require_once("controller.base.class.php");
 	class index extends ControllerBase
@@ -10,7 +10,9 @@
 		
 		public function _index()
 		{
-			$this->values = array("title"=>"hello",
+			$this->values = array("user"=>$_SESSION["USER"],
+												"title"=>"主页-ACGPIC",
+												"nickname"=>$_SESSION['NICK'],
 												"tests"=>"1");
 			$this->RenderTemplate("index");
 			//赋值耗时0.0022368431091309
