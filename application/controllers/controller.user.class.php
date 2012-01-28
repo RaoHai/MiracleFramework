@@ -103,7 +103,7 @@
 						$fp=fopen("log.txt","a");
 						fwrite($fp,"NEW:". $url."\r\n"); 
 						fclose($fp);
-						$groupID = $upload_handler->filepathout;
+						$groupID = $_POST["upselect"];
 						$imgmd = new image();
 						$data = array($name,"",$_SESSION["USERID"], date("Y-m-d"),$url,$groupID);
 						$imgmd->model->New($data);
@@ -120,6 +120,11 @@
 						header('HTTP/1.1 405 Method Not Allowed');
 				}
 
+		}
+		public function _test()
+		{
+			$this->values = array("user"=>"hello");
+				$this->RenderTemplate("test");
 		}
 		
 	}

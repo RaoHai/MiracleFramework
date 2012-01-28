@@ -25,6 +25,7 @@
 		public $dao;
 		protected $IsDbObj;
 		protected $DataStruct;
+		protected $verify;
 		private $instance;
 		protected $obj=array();
 		
@@ -73,6 +74,8 @@
 					//反正就是这个意思。。
 				$this->Status=0;
 				$this->QueryType="";
+				$this->QueryColum="";
+				$this->QueryConstraint="";
 				foreach ($instruct as $value)
 				{
 					//echo $value;
@@ -93,7 +96,8 @@
 								$sql = $this->QueryType." {$this->QueryColum} from `{$this->instance }`  {$this->join_sql} where `{$this->instance }`.`{$this->QueryConstraint}` ='".$arg[0]."'";
 								break;
 							case "update":
-								$sql = $this->QueryType." `".$this->instance."` set ".$this->QueryColum." = '".$arg[1]."' where `".$this->QueryConstraint."` = '".$arg[0]."'";
+								if(!empty($this->verify)) $check=" and `".$this->verify."` ='".$_SESSION['USERID']."'";
+								$sql = $this->QueryType." `".$this->instance."` set ".$this->QueryColum." = '".$arg[1]."' where `".$this->QueryConstraint."` = '".$arg[0]."'".$check;
 								break;
 							case "insert":
 								$list = implode(",",$this->DataStruct);
@@ -173,13 +177,21 @@
 						switch($this->Status)
 						{
 							case 1:
-								if($letter=="ALL") $this->QueryColum ="*";
-								else $this->QueryColum ="`".$letter."`";
-								$this->Status=2;
 								if($letter=="By") 
 								{
-									$this->QueryColum ="*";
+									if(empty($this->QueryColum))
+										$this->QueryColum ="*";
 									$this->Status=3;
+								}
+								else
+								{
+									if($letter=="ALL") $this->QueryColum ="*";
+									else 
+									{
+										if(!empty($this->QueryColum)) $this->QueryColum .=", `".$this->instance."`.`".$letter."`";
+										else $this->QueryColum =" `".$this->instance."`.`".$letter."`";
+									}
+									$this->Status=1;
 								}
 								return true;
 								break;

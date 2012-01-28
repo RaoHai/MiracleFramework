@@ -36,14 +36,14 @@ class UploadHandler
                 // Uncomment the following version to restrict the size of
                 // uploaded images. You can also add additional versions with
                 // their own upload directories:
-                /*
-                'large' => array(
-                    'upload_dir' => dirname(__FILE__).'/files/',
-                    'upload_url' => dirname($_SERVER['PHP_SELF']).'/files/',
-                    'max_width' => 1920,
-                    'max_height' => 1200
+                
+                'medium' => array(
+                    'upload_dir' =>INDEX_PATH.'/medium/',
+                    'upload_url' => $this->getFullUrl().'/medium/',
+                    'max_width' => 300,
+                    'max_height' => 300
                 ),
-                */
+                
                 'thumbnail' => array(
                     'upload_dir' => INDEX_PATH.'/thumbnails/',
                     'upload_url' => $this->getFullUrl().'/thumbnails/',
@@ -67,14 +67,18 @@ class UploadHandler
         		substr($_SERVER['SCRIPT_NAME'],0, strrpos($_SERVER['SCRIPT_NAME'], '/'));
     }
     
-    private function get_file_object($file_name) {
+    private function get_file_object($file_obj) {
+		$file_name = $file_obj[0];
+		$file_desc = $file_obj[1];
         $file_path = $this->options['upload_dir'].$file_name;
         if (is_file($file_path) && $file_name[0] !== '.') {
             $file = new stdClass();
             $file->name = $file_name;
 			$file->shortname = substr($file_name,18);
+			$file->editurl = "/image/".$file_name;
             $file->size = filesize($file_path);
 			$file->author =$_SESSION['NICK'];
+			$file->desc = $file_desc;
             $file->url = $this->options['upload_url'].rawurlencode($file->name);
 
             foreach($this->options['image_versions'] as $version => $options) {
@@ -99,7 +103,8 @@ class UploadHandler
 		$files=array();
 		foreach($re[$id] as $r)
 		{
-			$files[]=$r['imgurl'];
+			$files[]=array($r['imgurl'],$r['Description']);
+			//$files[]=$r['imgurl'];
 		}
 		//var_dump($files);
 		//var_dump( scandir($this->options['upload_dir']));
@@ -238,6 +243,7 @@ class UploadHandler
 		$name=urlencode($name);
         $file->name =$group."_".$time."_".$this->trim_file_name($name, $type);
 		$file->shortname = substr($file->name,18);
+		$file->hash = sha1($name);
 		//为文件加入时间戳和画集标识
 		$this->filepathout=$file->name;
 		$file->author =$_SESSION['NICK'];
@@ -291,6 +297,7 @@ class UploadHandler
         } else {
             $file->error = $error;
         }
+		
         return $file;
     }
     
@@ -299,6 +306,9 @@ class UploadHandler
             basename(stripslashes($_REQUEST['file'])) : null;
         if ($file_name) {
             $info = $this->get_file_object($file_name);
+			$fp=fopen("log.txt","a");
+			fwrite($fp,"GET:". $file_name."\r\n"); 
+			fclose($fp);
         } else {
             $info = $this->get_file_objects($id);
         }

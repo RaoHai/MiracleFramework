@@ -7,6 +7,8 @@
 		{
 			$this->IsDbObj = true;
 			$this->DataStruct = array("GroupName","Description","GroupCatalog","author","updates","likes","coverid");
+			$this->verify = "author";
+			
 			parent::__construct($instance);
 		}
 		

@@ -25,9 +25,9 @@
 -->
 <link rel="stylesheet" href="/bootstrap.min.css">
 <link rel="stylesheet" href="/bootstrap-image-gallery.min.css">
-<link rel="stylesheet" href="indexstyle.css">
+<link rel="stylesheet" href="/indexstyle.css">
 <!--[if lt IE 7]><link rel="stylesheet" href="http://blueimp.github.com/Bootstrap-Image-Gallery/bootstrap-ie6.min.css"><![endif]-->
-<link rel="stylesheet" href="jquery.fileupload-ui.css">
+<link rel="stylesheet" href="/jquery.fileupload-ui.css">
 
 </head>
 <body>
@@ -73,16 +73,16 @@
 		</div>
 	</div>
 	<div id="content">
-		<div id="welcome">
+		<div id="welcome" >
 			<a id="myphoto"><?php echo $this->values["nickname"]; ?></a>
-			<a id="showup">上传照片</a>
+			<a id="showup"style="text-align:center;">上传</a>
 			<a id="showcatch">抓取网址</a>
-			<a id="showgroup">查看画集</a>
+			<a id="showgroup" href="/imagegroup/all">查看画集</a>
 		</div>
 <p></p>
 </br>
 
-<div class="container" id="fcontainer" style="display:none">
+<div class="container" id="fcontainer">
     <form id="fileupload" action="/user/loader/" method="POST" enctype="multipart/form-data">
         <div class="row">
             <div class="span16 fileupload-buttonbar">
@@ -102,6 +102,7 @@
 					</select>
 					 				 
 					<button data-controls-modal="modal-from-dom" data-backdrop="true" data-keyboard="true" class="btn"style="margin-top: 4px;margin-left:20px;">新建画集</button>
+					<button data-controls-modal="modal-from-edit" data-backdrop="true" data-keyboard="true" class="btn" id="groupsettings" style="margin-top: 4px;margin-left:20px;">画集设定</button>
 				
 				   <div class="progressbar fileupload-progressbar fade"><div style="width:0%;"></div></div></p>
             </div>
@@ -122,18 +123,21 @@
     <div class="modal-header">
         <a href="#" class="close">&times;</a>
         <h3 class="title"></h3>
+		<input class = "imgname" id="edimgname" name="edimgname" style="display:none"/>
     </div>
     <div class="modal-body"></div>
     <div class="modal-footer">
+		<input id="edimgdesc" name="edimgdesc" class="imgdesc" style="float:left" value="点击这里为图片添加描述"/>
+		<a class="btn save" id="imgedit" style="float:left">保存</a>
         <a class="btn primary next">下一张</a>
         <a class="btn info prev">上一张</a>
         <a class="btn success download" target="_blank">下载</a>
     </div>
 </div>
           <div id="modal-from-dom" class="modal hide fade">
-            <div class="modal-header">
+            <div class="modal-header" style="background-color:#339BB9;">
               <a href="#" class="close">&times;</a>
-              <h3>新建画集</h3>
+              <h3 style="color:white;">新建画集</h3>
             </div>
 			<div id="groupnotice" style="text-align:center;display:none;">    <h4 style="color:red;">添加成功</h4></div>
             <div class="modal-body">
@@ -146,6 +150,26 @@
             </div>
             <div class="modal-footer">
               <a href="#" class="btn primary" id="groupsubmit" >添加</a>
+              
+            </div>
+          </div>          
+		  <div id="modal-from-edit" class="modal hide fade">
+            <div class="modal-header">
+              <a href="#" class="close">&times;</a>
+              <h3>修改画集信息</h3>
+            </div>
+			<div id="edgroupnotice" style="text-align:center;display:none;">    <h4 style="color:red;">设置成功</h4></div>
+            <div class="modal-body">
+				 <form id="imggroupnew" name="imggroupnew" action="/imagegroup/new" method="POST" enctype="multipart/form-data">
+				<p>修改画集信息……</p>
+				<input id="edgroupid" style="display:none;"/>
+				<p>画集名称：<input name="groupname" id="edgroupname"/></p></br>
+				<p>画集描述：<textarea name="groupdescription" id="edgroupdescription" ></textarea></p></br>
+				<p>画集类型：<select name="groupcatalog" id="edgroupcatalog"><option value="1">所有人可见</option><option value="2">仅自己可见</option><option value="3">仅小组可见</option><option value="4">仅好友可见</option></select></p>
+			  </form>
+            </div>
+            <div class="modal-footer">
+              <a href="#" class="btn primary" id="edgroupsubmit" >保存</a>
               
             </div>
           </div>
@@ -190,12 +214,12 @@ var fileUploadErrors = {
         {% } else { %}
 			
             <div class="preview" style="width:100px;height:100px;">{% if (file.thumbnail_url) { %}
-                <a href="{%=file.url%}" title="{%=file.name%}" rel="gallery"><img src="{%=file.thumbnail_url%}"></a>
+                <a href="{%=file.url%}" title="{%=file.name%}"  name="{%=file.desc%}" rel="gallery"><img src="{%=file.thumbnail_url%}"></a>
 				
             {% } %}</div>
 			
             <div class="name" style="overflow:hidden;width:100px;">
-                <a href="{%=file.url%}" title="{%=file.shortname%}" rel="{%=file.thumbnail_url&&'gallery'%}">{%=file.shortname%}</a>
+                <a href="{%=file.url%}" title="编辑 {%=file.shortname%}" rel="normal">{%=file.shortname%}</a>
             </div>
             <div class="size">{%=o.formatFileSize(file.size)%}</div>
          
@@ -213,7 +237,7 @@ var fileUploadErrors = {
 </script>
 <script src="/jquery.min.js"></script>
 <!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
-<script src="vendor/jquery.ui.widget.js"></script>
+<script src="/vendor/jquery.ui.widget.js"></script>
 <!-- The Templates and Load Image plugins are included for the FileUpload user interface -->
 <script src="/tmpl.min.js"></script>
 <script src="/load-image.min.js"></script>
@@ -221,10 +245,10 @@ var fileUploadErrors = {
 <script src="/bootstrap-modal.min.js"></script>
 <script src="/bootstrap-image-gallery.min.js"></script>
 <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
-<script src="jquery.iframe-transport.js"></script>
-<script src="jquery.fileupload.js"></script>
-<script src="jquery.fileupload-ui.js"></script>
-<script src="application.js"></script>
+<script src="/jquery.iframe-transport.js"></script>
+<script src="/jquery.fileupload.js"></script>
+<script src="/jquery.fileupload-ui.js"></script>
+<script src="/application.js"></script>
 
 <!-- The XDomainRequest Transport is included for cross-domain file deletion for IE8+ -->
 <!--[if gte IE 8]><script src="cors/jquery.xdr-transport.js"></script><![endif]-->

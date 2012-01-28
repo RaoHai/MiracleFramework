@@ -1,8 +1,12 @@
 <?php
 //固定形式路由配置
 $routeArr = array(
-"/home" => array("module"=>"user","controller"=>"user","action"=>"index","param"=>"0"),
-                  );
+'/^\/?(imagegroup)(\/?\d*\/?)?$/' => "/imagegroup/view$2",
+'/^\/*(\w+)\/(\d+)$/'=>'/$1/index/$2',
+'/^\/?(home)(\/?\d*\/?)?$/' => "/user/index$2",
+'/^\/?(home)(\/\w+)(\/?\d*\/?)?$/' => "/user$2$3",
+ );
+			
 			
  $Permissions = array(
 	"admin"=>"admin");

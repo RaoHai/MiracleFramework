@@ -119,6 +119,10 @@
 		$string .= ' ?>';
 		return $string;
 	}
+	public function __call($FuncName,$arg)
+	{
+		echo "error!";
+	}
 		
 	
 	}

@@ -5,7 +5,7 @@
 <title><?php echo $this->values["title"]; ?></title>
 <link rel="stylesheet" href="/bootstrap.min.css">
 <link rel="stylesheet" href="/bootstrap-image-gallery.min.css">
-<link rel="stylesheet" href="indexstyle.css">
+<link rel="stylesheet" href="/indexstyle.css">
 <script src="/jquery.min.js"></script>
 <script src="popup.js"></script>
 </head>

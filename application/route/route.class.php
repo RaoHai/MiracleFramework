@@ -38,16 +38,27 @@ class Route
        {
 			global $routeArr;
 			$uri == NULL && $uri = $this->_uri;
-			 if (isset( $routeArr[$uri]))
-			 {
-					  $this->uriArr = array($routeArr[$uri]["controller"],$routeArr[$uri]["action"],$routeArr[$uri]["param"]);
-					 
-			 }
-			 else
-			 {
-				$this->uriArr = explode('/',substr($uri,1));
-				$this->uriArr && $this->uriArr = array_filter($this->uriArr);
+			
+			
+			foreach($routeArr as $regex=>$mvc)
+			{
+				
+				//if(preg_match($regex,$uri,$matches))
+				//{
+					
+					$uri =  preg_replace($regex,$mvc,$uri);
+					//echo $uri."</br>";
+			
+				
+					//var_dump($matches);
+					
+					//$this->uriArr = array($mvc["controller"],$mvc["action"],$mvc["param"]);
+				//}
+				
 			}
+			//die();
+			$this->uriArr = explode('/',substr($uri,1));
+			$this->uriArr && $this->uriArr = array_filter($this->uriArr);
 			//var_dump($this->uriArr);
 			//echo "==>".$this->uriArr[1];
       }
@@ -68,6 +79,7 @@ class Route
 			$this->_action =(isset( $this->uriArr[1]) ? $this->uriArr[1] : 'index');
 			$this-> _param= (isset( $this->uriArr[2]) ? $this->uriArr[2] : '');
 			//echo $this->_module."|".$this->_controller."|".$this->_action.":".$this-> _param;
+			
 		}
 		
 		private function dispatcher()
