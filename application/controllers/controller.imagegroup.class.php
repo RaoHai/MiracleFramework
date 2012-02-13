@@ -42,7 +42,8 @@
 				header('Access-Control-Allow-Headers: X-File-Name, X-File-Type, X-File-Size');
 				header('Content-type: application/json');
 				$id = $_GET['id'];
-				$this->model->Get_By_ImagegroupId($id);
+				
+				$this->model->Get("all","magegroupId={$id}");
 				$re =$this ->model->getresult();
 				$group = new stdClass();
 				
@@ -125,7 +126,8 @@
 		public function _all($userid)
 		{
 			if(empty($userid)) $userid=$_SESSION["USERID"];
-			$this->model->Get_GroupName_Description_author_By_author( $userid);
+		//	$this->model->Get_GroupName_Description_author_By_author( $userid);
+			$this->model->Get(array("ImagegroupId","GroupName","Description","author"),array("author={$userid}"));
 			$re1 = $this->model->getresult();
 			$img = new image();
 			$author = new user();

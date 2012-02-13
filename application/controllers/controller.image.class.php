@@ -10,8 +10,8 @@
 		
 		public function _index()
 		{
-			//$this->model->Get(array("ImageID","ImageName"),array("id=5","sex=男"));
-			$this->model->Set(array("Description"=>"123456","feature"=>"aaaaa"),array("ImageId=90","GroupID=11"));
+			$this->model->Get("all",array("id=5","sex=男"));
+			//$this->model->Set(array("Description"=>"123456","feature"=>"aaaaa"),array("ImageId=90","GroupID=11"));
 		}	
 		public function _show()
 		{

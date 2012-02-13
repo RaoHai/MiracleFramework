@@ -64,21 +64,37 @@
 			return $this->obj;
 		}
 		/**
-		*	函数 Get(array QueryColums, array Constraints);
+		*	函数 Get(array QueryColums, array Constraints,array limit);
 		*  QueryColums： 参数数组
 		*	Constraints：约束数组，必须明确表示=,<,>
 		*	例如，Get(array("ImageID","ImageName"),array("id=5","sex=男"));
 		*
 		**/
-		public function Get($QueryColums,$Constraints)
+		public function Get($QueryColums,$Constraints,$limit,$order)
 		{
+			if(empty($limit)) $limit=array(0,30);
 			$sql = "select ";
 			$instance = $this->instance;
-			foreach($QueryColums as $query)
+			 global $_Struct;
+			 	$q;
+			if($QueryColums=="all")
 			{
-				$sql.="`{$instance}`.`{$query}` ";			
+				$q = "*";
+				$this->QueryColums = $this->DataStruct;
 			}
-			$sql.="from  `{$instance }` where";
+			else
+			{
+				$this->QueryColums = $QueryColums;
+				$q;
+				foreach($QueryColums as $query)
+				{
+						if(empty($q))
+							$q.="`{$instance}`.`{$query}` ";
+						else
+							$q.=",`{$instance}`.`{$query}` ";
+				}
+			}
+			$sql.="{$q} from  `{$instance }` ";
 			$Con;
 			foreach($Constraints as $Key)
 			{
@@ -90,8 +106,16 @@
 				else
 					$Con.=" and `{$instance}`.`{$Key}'";
 			}
-			$sql .= $Con;
+			if(!empty($Con))
+				$sql .= " where {$Con}";
+			if(isset($order))
+				$sql.=" ORDER BY {$order}";
+			$sql.=" limit {$limit[0]},{$limit[1]}";
+		//	echo $sql;
+
+			//echo $sql;
 			$this->DAL($sql);
+			return $this->getresult();
 		}
 			/**
 		*	函数Set(array QueryColums, array Constraints);
@@ -225,6 +249,7 @@
 					//echo "!!".$list["UserId"]."!!";
 					$idset = ucfirst($this->instance)."Id" ;
 					$currentid =  $list[$idset];
+				
 					if(!isset($this->obj[$currentid]))
 					{
 						$this->obj[$currentid] = new stdClass();

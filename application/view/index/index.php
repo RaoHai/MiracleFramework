@@ -58,7 +58,9 @@
 			<?php echo $this->values["welcome"]; ?></a>
 		</div>
 		<div id="indexshow">
-			<a>展示内容</a>
+			<div class="am-container" id="am-container" style="height:auto;float:left;">
+				<?php echo $this->values["images"]; ?>
+				</div>
 		</div>
 		<div id="activeuser">
 			<a>活跃用户</a>
@@ -77,5 +79,58 @@
 		<p>收集工具|关于我们|帮助</p>
 	</div>
 	</div>
+	<script type="text/javascript">
+				
+	
+			$(function() {
+				 
+				
+				var $container 	= $('#am-container'),
+					$imgs		= $container.find('img').hide(),
+					totalImgs	= $imgs.length,
+					cnt			= 0
+					;
+				
+				$imgs.each(function(i) {
+					var $img	= $(this);
+					$('<img/>').load(function() {
+						++cnt;
+						if( cnt === totalImgs ) {
+							$imgs.show();
+							$container.montage({
+								liquid 	: false,
+								minw : 100,
+							alternateHeight : true,
+							alternateHeightRange : {
+								min	: 70,
+								max	: 150
+							},
+							margin :2,
+							fillLastRow : true
+
+								
+							});
+							
+							/* 
+							 * just for this demo:
+							 */
+							$('#overlay').fadeIn(500);
+						}
+					}).attr('src',$img.attr('src'));
+				});
+					
+				// Initialize the Bootstrap Image Gallery plugin:
+				$('#am-container').imagegallery();			
+
+				
+				
+			});
+		</script>
+		<script src="/jquery.min.js"></script>
+		<script type="text/javascript" src="/jquery.montage.js"></script>
+		<script src="/vendor/jquery.ui.widget.js"></script>
+		<script src="/load-image.min.js"></script>
+	<script type="text/javascript" src="/jquery.montage.js"></script>
+
 </body>
 </html>

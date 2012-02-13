@@ -12,11 +12,18 @@
 		public function _index()
 		{
 			$img = new image();
+			$imgs = $img->model->Get("all",0,0,"ImageId desc");
 			
+			foreach($imgs as $img)
+			{
+				$url = rawurlencode($img->imgurl);
+				$desc = $img->Description;
+				$images.="<a href='/files/".$url."' title='".$url ."'><img src='/medium/".$url."' title='".$desc."'></img></a>\n";
+			}
 			$this->values = array("user"=>$_SESSION["USER"],
 												"title"=>"主页-ACGPIC",
 												"nickname"=>$_SESSION['NICK'],
-												"tests"=>"1");
+												"images"=>$images);
 												
 			$this->RenderTemplate("index");
 			//赋值耗时0.0022368431091309
