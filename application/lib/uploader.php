@@ -101,9 +101,9 @@ class UploadHandler
 		$img1->model->Get_By_GroupID($id);
 		$re =$img1 ->model->getresult();
 		$files=array();
-		foreach($re[$id] as $r)
+		foreach($re as $r)
 		{
-			$files[]=array($r['imgurl'],$r['Description']);
+			$files[]=array($r->imgurl,$r->Description);
 			//$files[]=$r['imgurl'];
 		}
 		//var_dump($files);
@@ -244,13 +244,16 @@ class UploadHandler
         $file->name =$group."_".$time."_".$this->trim_file_name($name, $type);
 		$file->shortname = substr($file->name,18);
 		$file->hash = sha1($name);
-		//为文件加入时间戳和画集标识
 		$this->filepathout=$file->name;
+		//为文件加入时间戳和画集标识
 		$file->author =$_SESSION['NICK'];
         $file->size = intval($size);
         $file->type = $type;
         $error = $this->has_error($uploaded_file, $file, $error);
+		$this->error = $error;
         if (!$error && $file->name) {
+
+			$this->error = $error;
             $file_path = $this->options['upload_dir'].$file->name;
             $append_file = !$this->options['discard_aborted_uploads'] &&
                 is_file($file_path) && $file->size > filesize($file_path);

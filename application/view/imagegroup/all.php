@@ -19,7 +19,7 @@
 			</div>
 			<div style="text-align: right;display: block;position: absolute;float: left;left:50px;">
 			<h1 style="width:220px"><?php echo $this->values["groupname"]; ?></h1>
-			<div style="margin-top:-20px;width:220px;"><?php echo $this->values["groupdesc"]; ?></div>
+			
 			<p>图集作者:<a href='/user/<?php echo $this->values["authorid"]; ?>'>| <?php echo $this->values["authorname"]; ?> |</a></p>
 			</div>
 			

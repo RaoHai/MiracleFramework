@@ -29,6 +29,7 @@ class Route
 		$this->route_arr   = $routeArr;
         $uri == NULL && $uri = $_SERVER['REDIRECT_URL'];
 		$this->_uri   = $uri;
+		
 		$this->init();
 
 
@@ -101,6 +102,7 @@ class Route
 			$acl->allow("user","index");
 			$acl->allow("user","user");
 			$acl->allow("user","imagegroup");
+			$acl->allow("user","comments");
 			$acl->allow("user","image");
 			$acl->allow("guest","user","loginpage");
 			$acl->allow("guest","user","login");
@@ -112,7 +114,7 @@ class Route
 			if (file_exists($controllerfile) && ($acl->isallowed($permission,$controllerName)||$acl->isallowed($permission,$controllerName,$this->_action)))
 			{
 		
-				require_once($controllerfile);
+			
 				$Instance = new $controllerName();
 				$Instance-> $func ($param);
 

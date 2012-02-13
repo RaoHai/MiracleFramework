@@ -32,6 +32,7 @@
 			//echo $modelname;
 			//echo $TemplateFolder;
 		}
+	
 		 /*模板引擎
 		 * 参考自vemplator
 		 * 理论上这一部分应该放在view里
@@ -123,6 +124,7 @@
 	{
 		echo "error!";
 	}
+
 		
 	
 	}

@@ -5,8 +5,7 @@
 	{
 		public function  __construct()
 		{
-			require_once(APPLICATION_PATH."/controllers/controller.imagegroup.class.php");
-			require_once(APPLICATION_PATH."/controllers/controller.image.class.php");
+		
 			parent::__construct();
 		}
 		
@@ -15,9 +14,10 @@
 				$imagegroup = new imagegroup();
 				$imagegroup ->model->Get_By_author($_SESSION["USERID"]);
 				$re =$imagegroup ->model->getresult();
-				foreach($re[4] as $r)
+				
+				foreach($re as $r)
 				{
-					$groupselect .="<option value='".$r["GroupID"]."'>".$r["GroupName"]."</option>";
+					$groupselect .="<option value='".$r->ImagegroupId."'>".$r->GroupName."</option>";
 				}
 				$this->values = array("user"=>$_SESSION["USER"],
 												"title"=>"我的Pic-ACGPIC",
@@ -48,19 +48,18 @@
 				echo "0";
 				return;
 			}
-			foreach ($re[$username] as $v)
+			foreach ($re as $v)
 			{
-				$key = $v["salt"];
+				$key = $v->salt;
 				$word = $password."wibble".$key;
 				//$word1= $v['password']."wibble".$key;
-				if (sha1($word)==$v['password']) 
+				if (sha1($word)==$v->password) 
 				{
-					$_SESSION["USER"]=$v['UserName'];
-					$_SESSION["USERID"]=$v['UserId'];
-					$_SESSION["NICK"]=$v['NickName'];
-					$_SESSION["permission"]=$v['permission'];
-					//echo "permission:".$_SESSION["permission"];
-					//echo $_SESSION["USER"],$_SESSION["NICK"],$_SESSION["permission"];
+					$_SESSION["USER"]=$v->UserName;
+					$_SESSION["USERID"]=$v->UserId;
+					$_SESSION["NICK"]=$v->NickName;
+					$_SESSION["permission"]=$v->permission;
+					
 					echo 1;
 					return ;
 				}
@@ -98,15 +97,17 @@
 					case 'POST':
 						$upload_handler->post();
 						//写入数据库。其中imagegroupID从$_POST["upselect"]得到，imageurl从$upload_handler->filepathout得到。
-						$name = $upload_handler->name;
-						$url = $upload_handler->filepathout;
-						$fp=fopen("log.txt","a");
-						fwrite($fp,"NEW:". $url."\r\n"); 
-						fclose($fp);
-						$groupID = $_POST["upselect"];
-						$imgmd = new image();
-						$data = array($name,"",$_SESSION["USERID"], date("Y-m-d"),$url,$groupID);
-						$imgmd->model->New($data);
+						if(!$upload_handler->error){
+							$name = $upload_handler->name;
+							$url = $upload_handler->filepathout;
+							$fp=fopen("log.txt","a");
+							fwrite($fp,"NEW:". $url."\r\n"); 
+							fclose($fp);
+							$groupID = $_POST["upselect"];
+							$imgmd = new image();
+							$data = array($name,"",$_SESSION["USERID"], date("Y-m-d"),$url,$groupID);
+							$imgmd->model->New($data);
+						}
 						break;
 					case 'DELETE':
 						$upload_handler->delete();
@@ -124,7 +125,7 @@
 		public function _test()
 		{
 			$this->values = array("user"=>"hello");
-				$this->RenderTemplate("test");
+			$this->RenderTemplate("test");
 		}
 		
 	}

@@ -33,21 +33,29 @@
 		private $Status;									//状态标记
 		private $QueryType;							//查询类型
 		private $QueryColum; 						//查询名称
+		private $QueryColums = array(); 						//查询名称
 		private $QueryTable;  						//查询表名
 		private $QueryConstraint; 					//查询约束
 		private $QueryConstraintOperators;  //约束运算符
 		private $QueryConstraintValue;			//约束值
 		private $StatusArr = array("Get"=>"select","Set"=>"update","New"=>"insert","Del"=>"DELETE");
 		//表间关系
-		protected $one_to_one;
+		protected $one_to_one = array();
 		protected $one_to_many = array();
 		protected $many_to_many = array();
 		protected $join_sql;
 		
 		public function  __construct($instance)
 		{
-			$this->dao=& new database();
+			$this->dao=database::getInstance();
 			$this->instance = $instance;
+			if($this->IsDbObj)
+			{
+				global $_Struct;
+				//echo ucfirst($instance);
+				//echo $_Struct[$instance];
+				$this->DataStruct = $_Struct[$instance];
+			}
 			//	var_dump($this->DataStruct);
 		}
 		public function getresult()
@@ -55,10 +63,76 @@
 			//if(empty($this->obj)) echo "空";
 			return $this->obj;
 		}
+		/**
+		*	函数 Get(array QueryColums, array Constraints);
+		*  QueryColums： 参数数组
+		*	Constraints：约束数组，必须明确表示=,<,>
+		*	例如，Get(array("ImageID","ImageName"),array("id=5","sex=男"));
+		*
+		**/
+		public function Get($QueryColums,$Constraints)
+		{
+			$sql = "select ";
+			$instance = $this->instance;
+			foreach($QueryColums as $query)
+			{
+				$sql.="`{$instance}`.`{$query}` ";			
+			}
+			$sql.="from  `{$instance }` where";
+			$Con;
+			foreach($Constraints as $Key)
+			{
+				$Key=str_replace("=","`='",$Key);
+				$Key=str_replace("<","`<'",$Key);
+				$Key=str_replace(">","`>'",$Key);
+				if(empty($Con))
+					$Con .="`{$instance}`.`{$Key}'";
+				else
+					$Con.=" and `{$instance}`.`{$Key}'";
+			}
+			$sql .= $Con;
+			$this->DAL($sql);
+		}
+			/**
+		*	函数Set(array QueryColums, array Constraints);
+		*  QueryColums： 参数数组，必须表示为键值对
+		*	Constraints：约束数组，必须明确表示=,<,>
+		*	例如，Get(array("ImageID","ImageName"),array("id=5","sex=男"));
+		*
+		**/
 		
+		public function Set($QueryColums,$Constraints)
+		{
+			$instance = $this->instance;
+			$sql = "update {$instance} set";
+			$query;
+			foreach($QueryColums as $Key=>$Value)
+			{
+				if(empty($query))
+					$query.="`{$instance}`.`{$Key}`='{$Value}'";
+				else
+					$query.=",`{$instance}`.`{$Key}`='{$Value}'";
+			}
+			$sql .="{$query} where ";
+			foreach($Constraints as $Key)
+			{
+				$Key=str_replace("=","`='",$Key);
+				$Key=str_replace("<","`<'",$Key);
+				$Key=str_replace(">","`>'",$Key);
+				if(empty($Con))
+					$Con .="`{$instance}`.`{$Key}'";
+				else
+					$Con.=" and `{$instance}`.`{$Key}'";
+			}
+			$sql .= $Con;
+		//	echo $sql;
+			$this->DAL($sql);
+			
+		}
 		/**
 		*
-		*
+		*	数据库调用。
+		*	实现类似于Get_AAA_By_BBB的方法。
 		*
 		**/
 		public function __call($FuncName,$arg)
@@ -76,9 +150,11 @@
 				$this->QueryType="";
 				$this->QueryColum="";
 				$this->QueryConstraint="";
+				$this->QueryConstraintOperators="=";
+				$this->obj=array();
 				foreach ($instruct as $value)
 				{
-					//echo $value;
+				//	echo $value;
 					if(!$this->state_next($value) )
 					{
 						//echo "语法错误";
@@ -87,17 +163,24 @@
 						//else echo "成功接收|";
 
 				}
+				
 					//var_dump($instruct);
-					if($this->Status==99)//接收成功
+					if($this->Status==99||$this->Status==4)//接收成功
 					{
 						//echo "全部接收成功>>>";
+						//处理多表
+						foreach($this->one_to_one as $otherlabel)
+						{
+							$this->QueryColum .=",`".$otherlabel[1].'`.* ';
+						}
+						$instance = $this->instance;
 						switch($this->QueryType){
 							case "select":
-								$sql = $this->QueryType." {$this->QueryColum} from `{$this->instance }`  {$this->join_sql} where `{$this->instance }`.`{$this->QueryConstraint}` ='".$arg[0]."'";
+								$sql = $this->QueryType." {$this->QueryColum} from `{$instance}`  {$this->join_sql} where `{$instance }`.`{$this->QueryConstraint}` {$this->QueryConstraintOperators}'".$arg[0]."'";
 								break;
 							case "update":
 								if(!empty($this->verify)) $check=" and `".$this->verify."` ='".$_SESSION['USERID']."'";
-								$sql = $this->QueryType." `".$this->instance."` set ".$this->QueryColum." = '".$arg[1]."' where `".$this->QueryConstraint."` = '".$arg[0]."'".$check;
+								$sql = $this->QueryType." `".$instance."` set ".$this->QueryColum." = '".$arg[1]."' where `".$this->QueryConstraint."` {$this->QueryConstraintOperators} '".$arg[0]."'".$check;
 								break;
 							case "insert":
 								$list = implode(",",$this->DataStruct);
@@ -105,37 +188,13 @@
 								$sql = "insert into `".$this->instance."`(".$list.") VALUES(".$argvalue.")";
 								break;
 							case "DELETE":
-								$sql = $this->QueryType." from `{$this->instance }` where  `{$this->instance }`.`{$this->QueryConstraint}` ='".$arg[0]."'";
+								$sql = $this->QueryType." from `{$instance }` where  `{$instance}`.`{$this->QueryConstraint}` ='".$arg[0]."'";
 								echo $sql ;
 								break;
 							}
-						$this->dao->fetch($sql);
+							$this->DAL($sql);
 						
-						/* 数据库对象的抽象 
-						*  其实也就是只是一次去冗余的封装而已。。
-						*  把join出来的表根据重复项和从属关系
-						*  分散到数组的各个键值
-						*/
-						while($list = $this->dao->getRow () )
-						{
-							//var_dump($list);
-							$echoid =$arg[0];			
-							//echo "!!".$list["UserId"]."!!";
-							if(!isset($this->obj[$echoid]))
-							{
-								$this->obj[$echoid] = array();
-							}
-							array_push($this->obj[$echoid],$list);
-							foreach($this->one_to_many as $other)
-							{
-								$mark=ucwords($other[0])."Id";
-								if(!isset($this->obj[$echoid][$other[0]])) $this->obj[$echoid][$other[0]] =array();
-								
-								$temp_arr=array($list[$mark] => $list);
-								//var_dump($temp_arr);
-								$this->obj[$echoid][$other[0]][$list[$mark]]=$list;
-							}
-						}
+						
 						
 					}
 					else
@@ -149,14 +208,61 @@
 				}
 				
 		}
-		
+		/* 数据库对象的抽象 
+		*  其实也就是只是一次去冗余的封装而已。。
+		*  把join出来的表根据重复项和从属关系
+		*  分散到数组的各个键值
+		*	2012-02-03，现在数据封装到对象中去了。。。
+		*/
+		private function DAL($sql)
+		{
+				$this->dao->fetch($sql);
+
+				while($list = $this->dao->getRow () )
+				{
+
+					//$echoid =$arg[0];			
+					//echo "!!".$list["UserId"]."!!";
+					$idset = ucfirst($this->instance)."Id" ;
+					$currentid =  $list[$idset];
+					if(!isset($this->obj[$currentid]))
+					{
+						$this->obj[$currentid] = new stdClass();
+						//一对一数据封装
+						foreach($this->one_to_one as $otherlabel)
+						{
+	
+							$n = $otherlabel[1];
+							$this->obj[$currentid]->$n = new stdClass();
+							 global $_Struct;
+							foreach($_Struct[$n] as $key)
+							{
+								$this->obj[$currentid]->$n->$key = $list[$key];
+							}
+						}
+					}
+					$this->obj[$currentid]->$idset=$currentid;
+					foreach($this->QueryColums as $key)
+					{
+						$this->obj[$currentid]->$key = $list[$key];
+					
+					}
+					
+				}
+
+				
+			
+				
+		}
 		/**
 		*
 		*
 		*
 		**/
+		
 		private function state_next($letter)
 		{
+			
 			if(empty($this->QueryType) ) //初始状态
 			{
 				if(isset($this->StatusArr[$letter]))
@@ -180,16 +286,28 @@
 								if($letter=="By") 
 								{
 									if(empty($this->QueryColum))
+									{
 										$this->QueryColum ="*";
+										$this->QueryColums = $this->DataStruct;
+									}	
 									$this->Status=3;
 								}
 								else
 								{
-									if($letter=="ALL") $this->QueryColum ="*";
+									if($letter=="ALL") 
+									{
+										$this->QueryColum ="*";
+										$this->QueryColums = $this->DataStruct;
+									}
 									else 
 									{
+										$this->QueryColums[]= $letter;
 										if(!empty($this->QueryColum)) $this->QueryColum .=", `".$this->instance."`.`".$letter."`";
-										else $this->QueryColum =" `".$this->instance."`.`".$letter."`";
+										else
+										{
+										if($this->QueryType=="select") $this->QueryColum =" `".$this->instance."`.`".ucfirst($this->instance)."Id` , `".$this->instance."`.`".$letter."`";
+										else $this->QueryColum ="`".$this->instance."`.`".$letter."`";
+										}
 									}
 									$this->Status=1;
 								}
@@ -202,10 +320,16 @@
 								break;
 							case 3:
 								$this->QueryConstraint = $letter;
+								$this->Status=4;
+								return true;
+								break;
+							case 4:
+								if($letter=="M") $this->QueryConstraintOperators=">";
+								elseif($letter=="L") $this->QueryConstraintOperators="<";
+								else return false;
 								$this->Status=99;
 								return true;
 								break;
-								
 						}
 						break;
 						case "DELETE":
@@ -227,7 +351,9 @@
 						
 						
 				}
+			
 			}
+			
 		}
 		/*
 		*表间关系处理
@@ -245,17 +371,26 @@
 		*   将只能在table1中查询到table2，
 		*   而不能从table2中查询到table1.
 		*   当然你可以纯手动- -
-		*
+		*	2012-01-30
+		*	突然发现join效率低下。
+		*	所以这部分应该要重写吧
 		*/
+		protected function has_one($mykey,$othermodel,$foreignkey)
+		{
+			$arr = array($mykey,$othermodel,$foreignkey);
+			array_push($this->one_to_one,$arr);
+			$this->join_sql.="INNER JOIN  `{$othermodel}` ON  `{$this->instance}`.`{$mykey}` =  `{$othermodel}`.`{$foreignkey}` ";
+		}
 		protected function has_many($othermodel,$foreignkey)
 		{
 			//if(empty($this->one_to_many)) echo "empty!!";
 			$arr=array($othermodel,$foreignkey);
 			array_push($this->one_to_many,$arr);
 			//var_dump($this->one_to_many);
-			$this->join_sql.="LEFT JOIN  `{$othermodel}` ON  `{$this->instance}`.`{$this->instance}ID` =  `{$othermodel}`.`{$foreignkey}` ";
+			//$this->join_sql.="LEFT JOIN  `{$othermodel}` ON  `{$this->instance}`.`{$this->instance}ID` =  `{$othermodel}`.`{$foreignkey}` ";
 			//echo 	$this->join_sql;
 		}
+
 		protected function belongs_to($othermodel,$foreignkey)
 		{
 				$arr=array($othermodel,$foreignkey);

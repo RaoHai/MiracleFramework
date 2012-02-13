@@ -1,2 +1,3 @@
 <b>hello</b>
-<?php echo $this->values["user"]; ?>
+{$if:<?php echo $this->values["user"]; ?>==<?php echo $this->values["user2"]; ?>}
+<?php } ?>

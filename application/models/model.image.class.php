@@ -6,7 +6,7 @@
 		public function  __construct($instance)
 		{
 			$this->IsDbObj = true;
-			$this->DataStruct = array("ImageName","Description","author","Date","imgurl","GroupID");
+			//$this->DataStruct = array("ImageName","Description","author","Date","imgurl","GroupID");
 			$this->verify = "author";
 			parent::__construct($instance);
 		}

@@ -10,26 +10,8 @@
 		
 		public function _index()
 		{
-			echo "正则匹配：";
-			$regex =array('/^\/?(home)(\/?\d*\/?)?$/',
-									'/^\/?(home)(\/\w+)(\/?\d*\/?)?$/');
-			//^user/\d+
-			$replace = array("/user/index$2",
-										"/user$2$3");
-			$string = "/home/123/";
-			echo preg_replace($regex,$replace,$string);
-			if(preg_match($regex,$string,$matches))
-			{
-				echo "通过";
-				echo preg_replace($regex,$replace,$string);
-				echo "<pre>";
-				var_dump($matches);
-				echo "</pre>";
-			}
-			else echo "未通过";
-			
-		
-		
+			//$this->model->Get(array("ImageID","ImageName"),array("id=5","sex=男"));
+			$this->model->Set(array("Description"=>"123456","feature"=>"aaaaa"),array("ImageId=90","GroupID=11"));
 		}	
 		public function _show()
 		{
@@ -42,9 +24,9 @@
 			$url = urlencode(trim(basename(stripslashes($_GET['url'])), ".\x00..\x20"));
 			$this->model->Get_Description_By_imgurl($url);
 			$re = $this->model->getresult();
-			foreach($re[$url] as $r)
+			foreach($re as $r)
 			{
-				echo $r['Description'];
+				echo $r->Description;
 			}
 		}
 		public function _edit()

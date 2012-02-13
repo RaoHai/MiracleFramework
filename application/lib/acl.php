@@ -38,12 +38,15 @@
 			{
 				self::$Rolelist[$rolename] = 1;
 				self::$parents[$rolename] =array();
+				if(isset($parent))
+				{
 				if(is_array($parent))
 				{
 					foreach($parent as $pa)
 						self::$parents[$rolename][]=$pa;
 				}
 				else self::$parents[$rolename][]=$parent;
+				}
 				//var_dump(self::$parents[$rolename]);
 			}
 			static public function allow($rolename,$controller,$action=0)

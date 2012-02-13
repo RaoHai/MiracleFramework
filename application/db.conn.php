@@ -1,31 +1,36 @@
 <?php
-
+	/*
+	*	2012-01-28
+	*		数据库类静态化
+	*	
+	*/
 	class database
 	{
-		var $db;
-		var $quary;
-		 public function  __construct()
+		static protected $db;
+		static protected $query;
+		static private $_instance = NULL;
+		 private function  __construct()
 		{
-			$this->db=mysql_connect(DB_HOST,DB_USER_NAME,DB_USER_PASSWORD);
-			mysql_select_db(DB_NAME, $this->db);
+			self::$db=mysql_connect(DB_HOST,DB_USER_NAME,DB_USER_PASSWORD);
+			mysql_select_db(DB_NAME, self::$db);
 			mysql_query("SET NAMES 'UTF8'"); 
 			//echo "db_connected";
 		}
-		public function fetch($sql)
+		static public function fetch($sql)
 		{
 			//echo $sql;
 			$fp=fopen("log.txt","a");
 			fwrite($fp,"SQL:". $sql."\r\n"); 
 			fclose($fp);
-			$this->query=mysql_unbuffered_query($sql,$this->db);
+			self::$query=mysql_unbuffered_query($sql,self::$db);
 		}
-		public function fetch2($sql)
+		static public function fetch2($sql)
 		{
-			$this->query=mysql_query($sql,$this->db);
+			self::$query=mysql_query($sql,self::$db);
 		}
-		public function getRow () 
+		static public function getRow () 
 		 {
-			if ( $row=mysql_fetch_array($this->query,MYSQL_ASSOC) )
+			if ( $row=mysql_fetch_array(self::$query,MYSQL_ASSOC) )
 			{	
 				return $row;
 			}
@@ -34,5 +39,12 @@
 				return false;
 			}
 		}
+			static public function getInstance() 
+			{
+				if (is_null(self::$_instance) || !isset(self::$_instance)) {
+					self::$_instance = new self();
+				}
+				return self::$_instance;
+			}	 
 }
 ?>

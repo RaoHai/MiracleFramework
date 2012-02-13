@@ -5,15 +5,19 @@
 	{
 		public function  __construct()
 		{
+			require_once(APPLICATION_PATH."/controllers/controller.image.class.php");
 			parent::__construct();
 		}
 		
 		public function _index()
 		{
+			$img = new image();
+			
 			$this->values = array("user"=>$_SESSION["USER"],
 												"title"=>"主页-ACGPIC",
 												"nickname"=>$_SESSION['NICK'],
 												"tests"=>"1");
+												
 			$this->RenderTemplate("index");
 			//赋值耗时0.0022368431091309
 			//序列化耗时0.00037193298339844

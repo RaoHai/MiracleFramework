@@ -11,4 +11,12 @@
 			$obj = unserialize($content);
 			return $obj;
 	}
+	function __autoload($classname)
+	{
+			require_once(APPLICATION_PATH."/controllers/controller.{$classname}.class.php");
+	}
+	static $_Struct=array("user" => array("UserName","NickName","email","password","salt","permission"),
+							"imagegroup"=>array("GroupName","Description","GroupCatalog","author","updates","likes","coverid"),
+							"image"=>array("ImageName","Description","author","Date","imgurl","GroupID"),
+							"comments"=>array("UserId","ImgId","SharedId","ImgGroupId","CommentText","QuoteID","ReplyID","Time"),);
 ?>
